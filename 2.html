@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>互联网钓鱼攻击检测web应用程序</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      .navbar {
+        background-color: #333;
+        display: flex; 
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px; 
+      }
+      .navbar img {
+        height: 70px; 
+      }
+      .navbar a {
+        color: white;
+        text-align: center;
+        padding: 30px 20px;
+        text-decoration: none;
+        font-size: 22px; 
+      }
+      .navbar a:hover {
+        background-color: #ddd;
+        color: black;
+      }
+      .nav-links {
+        display: flex; 
+      }
+      .navbar p {
+        color: white; 
+        margin-left: 10px; 
+        font-size: 16px; 
+      }
+      .page {
+        display: none; /* 隐藏所有页面 */
+        max-width: 7000px;
+        margin: 1px auto;
+        padding: 105px;
+        line-height: 1.5; 
+        background-image: url('https://bpic.588ku.com/back_pic/06/02/84/196065cb8e339f1.jpg'); 
+        background-size: cover;
+        background-position: cover;
+      }
+      .active {
+        display: block; /* 显示当前活动页面 */
+      }
+      footer {
+        background-color: #333;
+        text-align: center;
+        padding: 30px;
+        font-size: 12px;
+      }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div style="display: flex; align-items: center;"> 
+            <img src="https://i.imgs.ovh/2025/02/23/78Six.png" alt="Logo">
+            <p>互联网钓鱼攻击检测系统</p> 
+        </div>
+        <div class="nav-links">
+            <a href="https://hzj-2003.github.io/phishing-detecting-web/1.html">首页</a>
+            <a href="https://hzj-2003.github.io/phishing-detecting-web/2.html">功能介绍</a>
+            <a href="https://hzj-2003.github.io/phishing-detecting-web/">链接检测</a>
+            <a href="https://hzj-2003.github.io/phishing-detecting-web/3.html">联系作者</a>
+        </div>
+    </div>
+
+    <div id="page-0" class="page active">
+        <p style="font-size: 20px; color: white;">在数字化信息时代，网络安全问题日益突出，钓鱼攻击成为了最常见的网络威胁之一。</p>
+        <p style="font-size: 15px; color: white;">In the digital information age, network security issues are becoming increasingly prominent, with phishing attacks being one of the most common online threats.</p>
+        <p style="font-size: 20px; color: white;">这种攻击方式通过伪造合法网站或电子邮件，诱骗用户泄露敏感信息，如用户名、密码和银行账户信息。</p>
+        <p style="font-size: 15px; color: white;">This attack method tricks users into revealing sensitive information, such as usernames, passwords, and bank account details, by impersonating legitimate websites or emails.</p>
+        <p style="font-size: 20px; color: white;">为了有效应对这一挑战，我们推出了一款先进的互联网钓鱼攻击检测应用程序。</p>
+        <p style="font-size: 15px; color: white;">To effectively combat this challenge, we have developed an advanced Internet phishing attack detection application.</p>
+    </div>
+    
+    <div id="page-1" class="page">
+        <p style="font-size: 35px; color: white;">实时监测</p>
+        <p style="font-size: 25px; color: white;">Real-time Monitoring</p>
+        <p style="font-size: 20px; color: white;">我们的应用程序能够实时监测并分析访问的网站和电子邮件，快速识别潜在的钓鱼攻击。</p>
+        <p style="font-size: 15px; color: white;">Our application can monitor and analyze the websites and emails accessed in real time, quickly identifying potential phishing attacks.</p>
+    </div>
+
+    <div id="page-2" class="page">
+        <p style="font-size: 35px; color: white;">智能算法</p>
+        <p style="font-size: 25px; color: white;">Intelligent Algorithms</p>
+        <p style="font-size: 20px; color: white;">采用先进的机器学习算法，不断更新数据库，有效识别新型钓鱼手法，提升检测准确率。</p>
+        <p style="font-size: 15px; color: white;">Utilizing advanced machine learning algorithms, our database is continuously updated to effectively recognize new phishing techniques, improving detection accuracy.</p>
+    </div>
+    
+    <div id="page-3" class="page">
+        <p style="font-size: 35px; color: white;">用户友好界面</p>
+        <p style="font-size: 25px; color: white;">User-friendly Interface</p>
+        <p style="font-size: 20px; color: white;">简单易用的界面设计，使用户能够轻松查看检测结果，并获取安全建议。</p>
+        <p style="font-size: 15px; color: white;">The simple and easy-to-use interface design allows users to effortlessly view detection results and receive security recommendations.</p>
+    </div>
+
+    <footer>
+        <p style="color: white">互联网钓鱼攻击检测web应用程序</p>
+    </footer>
+
+    <script>
+      const pages = document.querySelectorAll('.page');
+      const pageLinks = document.querySelectorAll('.page-link');
+      let currentPageIndex = 0;
+
+      function showPage(index) {
+          pages.forEach((page, i) => {
+              page.classList.remove('active'); // 隐藏所有页面
+              if (i === index) {
+                  page.classList.add('active'); // 显示当前页面
+              }
+          });
+          currentPageIndex = index; // 更新当前页面索引
+      }
+
+      pageLinks.forEach(link => {
+          link.addEventListener('click', (e) => {
+              e.preventDefault(); // 阻止默认链接行为
+              const pageIndex = parseInt(link.getAttribute('data-page'));
+              showPage(pageIndex); // 显示对应页面
+          });
+      });
+
+      window.addEventListener('wheel', (e) => {
+          e.preventDefault(); // 阻止默认滚动行为
+          if (e.deltaY > 0) {
+              // 向下滚动
+              if (currentPageIndex < pages.length - 1) {
+                  showPage(currentPageIndex + 1);
+              }
+          } else {
+              // 向上滚动
+              if (currentPageIndex > 0) {
+                  showPage(currentPageIndex - 1);
+              }
+          }
+      }, { passive: false }); // 设置 passive 为 false 以便调用 preventDefault
+    </script>
+</body>
+</html>

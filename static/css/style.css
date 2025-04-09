@@ -1,0 +1,118 @@
+/* 基础样式 */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #1a73e8;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+}
+
+/* 输入区域 */
+.input-section {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+input[type="url"] {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #dfe1e5;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+button {
+    padding: 12px 24px;
+    background: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #1557b0;
+}
+
+/* 加载动画 */
+.loader {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #1a73e8;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.hidden {
+    display: none;
+}
+
+/* 结果卡片 */
+#resultCard {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.status-badge {
+    font-size: 24px;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.status-badge.safe {
+    color: #34a853;
+}
+
+.status-badge.danger {
+    color: #ea4335;
+}
+
+.result-details {
+    color: #5f6368;
+    line-height: 1.6;
+}
+
+/* 错误提示 */
+#errorBox {
+    color: #dc3545;
+    padding: 1rem;
+    margin-top: 1rem;
+    background: #ffeef0;
+    border: 1px solid #f5c6cb;

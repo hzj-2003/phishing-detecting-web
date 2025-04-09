@@ -1,0 +1,3 @@
+model_checkpoint_path: "/home/user1/code/URLNet/urlnet_modelcheckpoints/model-715"
+all_model_checkpoint_paths: "/home/user1/code/URLNet/urlnet_modelcheckpoints/model-500"
+all_model_checkpoint_paths: "/home/user1/code/URLNet/urlnet_modelcheckpoints/model-715"

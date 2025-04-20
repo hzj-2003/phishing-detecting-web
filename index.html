@@ -1,19 +1,170 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <!-- 保持所有样式不变 -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>互联网钓鱼攻击检测系统</title>
     <style>
-        /* 原有CSS代码完全保留 */
+        /* 保持原有样式不变 */
         body { margin: 0; font-family: Arial, sans-serif; }
-        .navbar { /* ... */ }
-        /* ...其他样式不变... */
+        .navbar {
+            background-color: #333;
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px; 
+        }
+        .navbar img { height: 70px; }
+        .navbar a {
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            text-decoration: none;
+            font-size: 22px; 
+        }
+        .navbar a:hover { background-color: #ddd; color: black; }
+        .nav-links { display: flex; }
+        .navbar p { 
+            color: white; 
+            margin-left: 10px; 
+            font-size: 16px; 
+        }
+        .main-content {
+            background-image: url('https://img.pptjia.com/image/20181130/938db4489058c6229808efc03bf51687.png');
+            background-size: cover;
+            min-height: calc(100vh - 160px);
+            padding: 50px 20px;
+        }
+        .detection-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .input-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        #urlInput {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        button:hover { background: #555; }
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #333;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        #resultCard {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .safe { background: #d4edda; color: #155724; }
+        .danger { background: #f8d7da; color: #721c24; }
+        #errorBox {
+            color: #dc3545;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <!-- 保持HTML结构不变 -->
-    <div class="navbar">...</div>
-    <div class="main-content">...</div>
-    <div class="footer">...</div>
+    <div class="navbar">
+        <div style="display: flex; align-items: center;"> 
+            <img src="https://i.imgs.ovh/2025/02/23/78Six.png" alt="Logo">
+            <p>互联网钓鱼攻击检测系统</p> 
+        </div>
+        <div class="nav-links">
+            <a href="https://hzj-2003.github.io/phishing-detecting-web/1.html">首页</a>
+            <a href="https://hzj-2003.github.io/phishing-detecting-web/2.html">功能介绍</a>
+            <a href="https://hzj-2003.github.io/phishing-detecting-web/">链接检测</a>
+            <a href="https://hzj-2003.github.io/phishing-detecting-web/3.html">联系作者</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="detection-container">
+            <h1 style="display: flex; align-items: center; gap: 15px; color: #333;">
+                <img src="https://img.icons8.com/color/48/000000/shield.png" alt="安全盾牌">
+                URL安全检测
+            </h1>
+            
+            <div class="input-section">
+                <input type="url" id="urlInput" 
+                       placeholder="请输入完整URL (例如: https://example.com)">
+                <button onclick="startDetection()">
+                    <span class="button-text">立即检测</span>
+                    <div class="loader"></div>
+                </button>
+            </div>
+            
+            <div id="resultCard">
+                <div class="result-header">
+                    <span class="url" style="font-weight: bold;"></span>
+                    <span class="status-badge"></span>
+                </div>
+                <div class="result-details">
+                    <div>检测结果: <span class="status-text"></span></div>
+                    <div>处理耗时: <span class="processing-time"></span>秒</div>
+                    <div>检测时间: <span class="timestamp"></span></div>
+                </div>
+            </div>
+            
+            <div id="errorBox"></div>
+        </div>
+    </div>
+
+    <div style="
+        background-color: #333;
+        text-align: center;
+        padding: 30px;
+        font-size: 12px;
+    ">
+        <p style="color: white">互联网钓鱼攻击检测web应用程序</p>
+    </div>
 
     <script>
         // ================== 更新后的API配置 ==================
@@ -38,10 +189,10 @@
             const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
             try {
-                // 增强的输入验证（严格模式）
+                // 输入验证（严格模式）
                 validateUrl(urlInput.value.trim());
 
-                // 调用API（已移除API_KEY）
+                // 调用API
                 const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -82,7 +233,7 @@
             }
         }
 
-        // ================== 增强的工具函数 ==================
+        // ================== 新增工具函数 ==================
         function validateUrl(url) {
             try {
                 new URL(url);

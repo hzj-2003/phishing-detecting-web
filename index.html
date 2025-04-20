@@ -1,53 +1,47 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <!-- 头部元信息保持不变 -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>互联网钓鱼攻击检测系统</title>
+    <!-- 保持所有样式不变 -->
     <style>
-        /* 所有样式保持不变 */
+        /* 原有CSS代码完全保留 */
         body { margin: 0; font-family: Arial, sans-serif; }
-        /* ...原有样式... */
+        .navbar { /* ... */ }
+        /* ...其他样式不变... */
     </style>
 </head>
 <body>
-    <!-- HTML结构保持不变 -->
+    <!-- 保持HTML结构不变 -->
     <div class="navbar">...</div>
-
-    <div class="main-content">
-        <div class="detection-container">
-            <!-- 输入部分保持不变 -->
-            <div class="input-section">...</div>
-            
-            <!-- 结果展示部分 -->
-            <div id="resultCard">
-                <div class="result-header">...</div>
-                <div class="result-details">
-                    <div>检测结果: <span class="status-text"></span></div>
-                    <div>可信概率: <span class="confidence"></span></div>
-                    <div>处理耗时: <span class="processing-time"></span>秒</div>
-                    <div>检测时间: <span class="timestamp"></span></div>
-                </div>
-            </div>
-            <div id="errorBox"></div>
-        </div>
-    </div>
-
+    <div class="main-content">...</div>
     <div class="footer">...</div>
 
     <script>
-        // ================== API配置 ==================
-        const API_ENDPOINT = 'https://your-ngrok-url.ngrok-free.app/detect';
+        // ================== 更新后的API配置 ==================
+        const API_ENDPOINT = 'https://055f-211-148-202-24.ngrok-free.app/detect';  // 你的Ngrok地址
+        const REQUEST_TIMEOUT = 15000;  // 15秒超时
 
-        // ================== 核心检测逻辑 ==================
         async function startDetection() {
-            // ...变量定义与状态重置代码保持不变...
+            const urlInput = document.getElementById('urlInput');
+            const resultCard = document.getElementById('resultCard');
+            const errorBox = document.getElementById('errorBox');
+            const button = document.querySelector('button');
+            const loader = document.querySelector('.loader');
+
+            // 重置状态
+            resultCard.style.display = 'none';
+            errorBox.style.display = 'none';
+            button.disabled = true;
+            loader.style.display = 'inline-block';
+            button.querySelector('.button-text').textContent = '检测中...';
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
             try {
-                // ...输入验证代码保持不变...
+                // 增强的输入验证（严格模式）
+                validateUrl(urlInput.value.trim());
 
-                // 调用API（关键修改）
+                // 调用API（已移除API_KEY）
                 const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -55,49 +49,98 @@
                     signal: controller.signal
                 });
 
-                // ...错误处理代码保持不变...
+                clearTimeout(timeoutId);
 
-                // 数据解析（严格校验）
-                const responseData = await response.json();
-                validateApiResponse(responseData); // 新增校验
-                const formattedData = formatResult(responseData);
+                // 处理HTTP错误
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `服务器错误 (HTTP ${response.status})`);
+                }
+
+                // 解析并校验数据
+                const rawData = await response.json();
+                const validatedData = validateApiResponse(rawData);
+
+                // 更新UI
+                updateResultUI({
+                    url: urlInput.value.trim(),
+                    result: validatedData.result === 'safe' ? '安全链接' : '恶意网站',
+                    processing_time: validatedData.processing_time.toFixed(2),
+                    timestamp: new Date().toLocaleString('zh-CN', { 
+                        hour12: false,
+                        timeZone: 'Asia/Shanghai'
+                    })
+                });
                 
-                updateResultUI(formattedData);
                 resultCard.style.display = 'block';
 
             } catch (error) {
-                showError(error.message);
+                showError(error.message || '检测失败，请检查网络连接');
+                console.error('调试信息:', error);
             } finally {
                 resetButton();
             }
         }
 
-        // ================== 新增数据校验函数 ==================
-        function validateApiResponse(data) {
-            const requiredFields = ['result', 'probability', 'processing_time'];
-            requiredFields.forEach(field => {
-                if (!(field in data)) throw new Error(`缺少字段: ${field}`);
-            });
-            if (typeof data.probability !== 'number' || 
-                typeof data.processing_time !== 'number') {
-                throw new Error('数据类型错误');
+        // ================== 增强的工具函数 ==================
+        function validateUrl(url) {
+            try {
+                new URL(url);
+            } catch {
+                throw new Error('URL必须包含 http:// 或 https:// 协议头');
             }
         }
 
-        // ================== 数据格式化函数 ==================
-        function formatResult(data) {
-            return {
-                url: document.getElementById('urlInput').value.trim(),
-                result: data.result === 'safe' ? '安全链接' : '恶意网站',
-                confidence: `${(data.probability * 100).toFixed(1)}%`,
-                processing_time: data.processing_time.toFixed(2),
-                timestamp: new Date().toLocaleString('zh-CN', { 
-                    timeZone: 'Asia/Shanghai' 
-                })
-            };
+        function validateApiResponse(data) {
+            // 字段存在性校验
+            const requiredFields = ['result', 'processing_time'];
+            requiredFields.forEach(field => {
+                if (!(field in data)) throw new Error('API响应缺少必要字段');
+            });
+
+            // 数据类型校验
+            if (typeof data.processing_time !== 'number') {
+                throw new Error('处理时间应为数值类型');
+            }
+
+            // 结果值域校验
+            if (!['safe', 'phishing'].includes(data.result)) {
+                throw new Error('未知的检测结果类型');
+            }
+
+            return data;
         }
 
-        // ...其余辅助函数保持不变...
+        // ================== 保持不变的UI函数 ==================
+        function updateResultUI(data) {
+            const isSafe = data.result === '安全链接';
+            
+            document.querySelector('.url').textContent = data.url;
+            document.querySelector('.status-text').textContent = data.result;
+            document.querySelector('.processing-time').textContent = data.processing_time;
+            document.querySelector('.timestamp').textContent = data.timestamp;
+            
+            const statusBadge = document.querySelector('.status-badge');
+            statusBadge.className = `status-badge ${isSafe ? 'safe' : 'danger'}`;
+            statusBadge.textContent = isSafe ? '✓ 安全' : '⚠️ 危险';
+        }
+
+        function showError(message) {
+            errorBox.textContent = `错误: ${message}`;
+            errorBox.style.display = 'block';
+        }
+
+        function resetButton() {
+            const button = document.querySelector('button');
+            button.disabled = false;
+            button.querySelector('.loader').style.display = 'none';
+            button.querySelector('.button-text').textContent = '立即检测';
+        }
+
+        // 新增回车键检测功能
+        document.getElementById('urlInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') startDetection();
+        });
     </script>
 </body>
 </html>

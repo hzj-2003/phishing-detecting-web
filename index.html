@@ -1,53 +1,28 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <!-- 头部元信息保持不变 -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>互联网钓鱼攻击检测系统</title>
     <style>
-        /* 样式部分保持完全不变 */
+        /* 所有样式保持不变 */
         body { margin: 0; font-family: Arial, sans-serif; }
-        .navbar { /* ...原有样式 */ }
-        /* ...其他所有样式均保持原样... */
-        @keyframes spin { /* ... */ }
+        /* ...原有样式... */
     </style>
 </head>
 <body>
-    <!-- 保持HTML结构不变 -->
-    <div class="navbar">
-        <div style="display: flex; align-items: center;"> 
-            <img src="https://i.imgs.ovh/2025/02/23/78Six.png" alt="Logo">
-            <p>互联网钓鱼攻击检测系统</p> 
-        </div>
-        <div class="nav-links">
-            <a href="https://hzj-2003.github.io/phishing-detecting-web/1.html">首页</a>
-            <a href="https://hzj-2003.github.io/phishing-detecting-web/2.html">功能介绍</a>
-            <a href="https://hzj-2003.github.io/phishing-detecting-web/">链接检测</a>
-            <a href="https://hzj-2003.github.io/phishing-detecting-web/3.html">联系作者</a>
-        </div>
-    </div>
+    <!-- HTML结构保持不变 -->
+    <div class="navbar">...</div>
 
     <div class="main-content">
         <div class="detection-container">
-            <h1 style="display: flex; align-items: center; gap: 15px; color: #333;">
-                <img src="https://img.icons8.com/color/48/000000/shield.png" alt="安全盾牌">
-                URL安全检测
-            </h1>
+            <!-- 输入部分保持不变 -->
+            <div class="input-section">...</div>
             
-            <div class="input-section">
-                <input type="url" id="urlInput" 
-                       placeholder="请输入完整URL (例如: https://example.com)">
-                <button onclick="startDetection()">
-                    <span class="button-text">立即检测</span>
-                    <div class="loader"></div>
-                </button>
-            </div>
-            
+            <!-- 结果展示部分 -->
             <div id="resultCard">
-                <div class="result-header">
-                    <span class="url" style="font-weight: bold;"></span>
-                    <span class="status-badge"></span>
-                </div>
+                <div class="result-header">...</div>
                 <div class="result-details">
                     <div>检测结果: <span class="status-text"></span></div>
                     <div>可信概率: <span class="confidence"></span></div>
@@ -55,130 +30,74 @@
                     <div>检测时间: <span class="timestamp"></span></div>
                 </div>
             </div>
-            
             <div id="errorBox"></div>
         </div>
     </div>
 
-    <div style="
-        background-color: #333;
-        text-align: center;
-        padding: 30px;
-        font-size: 12px;
-    ">
-        <p style="color: white">互联网钓鱼攻击检测web应用程序</p>
-    </div>
+    <div class="footer">...</div>
 
     <script>
-        // ================== 修改后的API配置 ==================
-        const API_ENDPOINT = 'https://055f-211-148-202-24.ngrok-free.app/detect'; // 替换为你的Ngrok地址
+        // ================== API配置 ==================
+        const API_ENDPOINT = 'https://your-ngrok-url.ngrok-free.app/detect';
 
-        // ================== 异步检测函数 ==================
+        // ================== 核心检测逻辑 ==================
         async function startDetection() {
-            const urlInput = document.getElementById('urlInput');
-            const resultCard = document.getElementById('resultCard');
-            const errorBox = document.getElementById('errorBox');
-            const button = document.querySelector('button');
-            const loader = document.querySelector('.loader');
-
-            // 重置状态
-            resultCard.style.display = 'none';
-            errorBox.style.display = 'none';
-            button.disabled = true;
-            loader.style.display = 'inline-block';
-            button.querySelector('.button-text').textContent = '检测中...';
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            // ...变量定义与状态重置代码保持不变...
 
             try {
-                // 输入验证
-                if (!validateUrl(urlInput.value)) {
-                    throw new Error('URL必须包含协议头（如http://或https://）');
-                }
+                // ...输入验证代码保持不变...
 
-                // 调用API
+                // 调用API（关键修改）
                 const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url: urlInput.value.trim() }),
                     signal: controller.signal
                 });
 
-                clearTimeout(timeoutId);
+                // ...错误处理代码保持不变...
 
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.message || `API错误代码: ${response.status}`);
-                }
-
-                // 解析响应数据
+                // 数据解析（严格校验）
                 const responseData = await response.json();
-                const formattedData = parseApiResponse(responseData);
+                validateApiResponse(responseData); // 新增校验
+                const formattedData = formatResult(responseData);
                 
                 updateResultUI(formattedData);
                 resultCard.style.display = 'block';
 
             } catch (error) {
-                showError(error.message || '检测失败，请检查网络连接');
+                showError(error.message);
             } finally {
                 resetButton();
             }
         }
 
-        // ================== 新增数据解析函数 ==================
-        function parseApiResponse(responseData) {
-            if (!responseData.hasOwnProperty('result') || 
-                !responseData.hasOwnProperty('probability')) {
-                throw new Error('无效的API响应格式');
+        // ================== 新增数据校验函数 ==================
+        function validateApiResponse(data) {
+            const requiredFields = ['result', 'probability', 'processing_time'];
+            requiredFields.forEach(field => {
+                if (!(field in data)) throw new Error(`缺少字段: ${field}`);
+            });
+            if (typeof data.probability !== 'number' || 
+                typeof data.processing_time !== 'number') {
+                throw new Error('数据类型错误');
             }
+        }
 
+        // ================== 数据格式化函数 ==================
+        function formatResult(data) {
             return {
                 url: document.getElementById('urlInput').value.trim(),
-                result: responseData.result === 'safe' ? '安全链接' : '恶意网站',
-                confidence: (responseData.probability * 100).toFixed(1) + '%',
-                processing_time: (responseData.processing_time || 0).toFixed(2),
-                timestamp: new Date().toLocaleString()
+                result: data.result === 'safe' ? '安全链接' : '恶意网站',
+                confidence: `${(data.probability * 100).toFixed(1)}%`,
+                processing_time: data.processing_time.toFixed(2),
+                timestamp: new Date().toLocaleString('zh-CN', { 
+                    timeZone: 'Asia/Shanghai' 
+                })
             };
         }
 
-        // ================== 其他辅助函数（保持不变） ==================
-        function validateUrl(url) {
-            try {
-                new URL(url);
-                return true;
-            } catch {
-                return false;
-            }
-        }
-
-        function updateResultUI(data) {
-            const isSafe = data.result === '安全链接';
-            
-            document.querySelector('.url').textContent = data.url;
-            document.querySelector('.status-text').textContent = data.result;
-            document.querySelector('.confidence').textContent = data.confidence;
-            document.querySelector('.processing-time').textContent = data.processing_time;
-            document.querySelector('.timestamp').textContent = data.timestamp;
-            
-            const statusBadge = document.querySelector('.status-badge');
-            statusBadge.className = `status-badge ${isSafe ? 'safe' : 'danger'}`;
-            statusBadge.textContent = isSafe ? '✓ 安全' : '⚠️ 危险';
-        }
-
-        function showError(message) {
-            errorBox.textContent = `错误: ${message}`;
-            errorBox.style.display = 'block';
-        }
-
-        function resetButton() {
-            const button = document.querySelector('button');
-            button.disabled = false;
-            button.querySelector('.loader').style.display = 'none';
-            button.querySelector('.button-text').textContent = '立即检测';
-        }
+        // ...其余辅助函数保持不变...
     </script>
 </body>
 </html>

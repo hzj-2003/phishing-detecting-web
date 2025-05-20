@@ -1,47 +1,71 @@
-from flask import Flask, render_template, request, jsonify
-from classifier import URLNetClassifier
-import os
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from classifier import URLNetClassifier  
 import time
 
 app = Flask(__name__)
 
-# 初始化分类器（约需2-5秒）
-print("[系统] 正在加载URL检测模型...")
-start_time = time.time()
-classifier = URLNetClassifier()
-load_time = time.time() - start_time
-print(f"[系统] 模型加载完成，耗时 {load_time:.2f} 秒")
+CORS(app, resources={
+    r"/detect": {
+        "origins": [
+            "https://hzj-2003.github.io",
+            "https://c083-211-148-202-154.ngrok-free.app",
+            "http://localhost:*"
+        ],
+        "methods": ["POST"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
-@app.route('/')
-def home():
-    """渲染检测页面"""
-    return render_template('index.html')
+
+print("[系统] 正在加载URL检测模型...")
+start_load = time.time()
+classifier = URLNetClassifier()  
+load_time = time.time() - start_load
+print(f"[系统] 模型初始化完成，耗时 {load_time:.2f}秒")
 
 @app.route('/detect', methods=['POST'])
 def detect():
-    """处理检测请求"""
+    """与前端兼容的检测接口"""
     try:
-        # 获取并验证输入
-        url = request.json.get('url', '').strip()
+        # 输入验证
+        data = request.get_json()
+        if not data or 'url' not in data:
+            return jsonify({
+                "status": "error",
+                "message": "Missing required parameter: url"
+            }), 400
+
+        url = data['url'].strip()
         if not url:
-            return jsonify({"status": "error", "message": "URL不能为空"}), 400
+            return jsonify({
+                "status": "error",
+                "message": "URL cannot be empty"
+            }), 400
+
         
-        # 执行预测
-        start_pred = time.time()
-        result = classifier.predict(url)
-        pred_time = time.time() - start_pred
+        start_time = time.time()
+        raw_prediction = classifier.predict(url)  
+        process_time = time.time() - start_time
+
+       
+        result_mapping = {
+            "恶意": "phishing",
+            "正常": "safe"
+        }
         
+    
         return jsonify({
-            "status": "success",
-            "result": result,
-            "processing_time": f"{pred_time:.3f}秒",
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-        })
-        
+            "result": result_mapping.get(raw_prediction, "unknown"),
+            "probability": 0.95 if raw_prediction == "恶意" else 0.05,  
+            "processing_time": process_time,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        }), 200
+
     except Exception as e:
         return jsonify({
             "status": "error",
-            "message": f"检测失败: {str(e)}"
+            "message": f"Detection failed: {str(e)}"
         }), 500
 
 if __name__ == '__main__':
